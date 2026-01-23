@@ -1,0 +1,46 @@
+{
+  "name": "react-flow-modal",
+  "version": "0.1.0",
+  "description": "Promise-based modal flows for React",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/dohyeon-kr/react-flow-modal.git"
+  },
+  "keywords": [
+    "react",
+    "modal",
+    "async",
+    "promise",
+    "flow"
+  ],
+  "author": "Dohyeon Ju",
+  "license": "MIT",
+  "type": "module",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsup",
+    "prepublishOnly": "pnpm build"
+  },
+  "peerDependencies": {
+    "react": ">=18",
+    "react-dom": ">=18"
+  },
+  "devDependencies": {
+    "@types/react": "^19.2.9",
+    "@types/react-dom": "^19.2.3",
+    "react": "^19.2.3",
+    "react-dom": "^19.2.3",
+    "tsup": "^8.5.1",
+    "typescript": "^5.9.3"
+  },
+  "packageManager": "pnpm@10.27.0"
+}
