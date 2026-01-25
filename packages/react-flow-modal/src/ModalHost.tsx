@@ -1,13 +1,13 @@
-import React, { FC, Fragment } from 'react';
-import { useModalContext } from './useModalContext';
+import { FC, Fragment } from 'react';
+import { useModalHost } from './useModalContext';
 
 /** @deprecated use renderModals instead */
 export const ModalHost: FC = () => {
-    const { stack } = useModalContext();
+    const { render } = useModalHost();
 
     return (
         <Fragment>
-            {stack.map((item) => (item))}
+            {render()}
         </Fragment>
     );
 };
