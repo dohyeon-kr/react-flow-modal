@@ -1,9 +1,7 @@
-import { AnimatePresence, motion } from "motion/react";
-import { useState } from 'react';
-import { useModal, useModalHost } from "react-flow-modal";
+import { motion } from "motion/react";
+import { useModal } from "react-flow-modal";
 import './App.css';
-import reactLogo from './assets/react.svg';
-import viteLogo from '/vite.svg';
+import { useState } from "react";
 
 function ConfirmModal({
   onConfirm,
@@ -37,6 +35,7 @@ function ConfirmModal({
           padding: 24,
           borderRadius: 8,
           minWidth: 300,
+          color: "black",
         }}
       >
         <h3>Are you sure?</h3>
@@ -53,9 +52,10 @@ function ConfirmModal({
 
 function App() {
   const modal = useModal();
+  const [confirmed, setConfirmed] = useState<boolean | null>(null);
 
   const onClick = async () => {
-    const result = await modal.open("confirm", (resolve) => (
+    const result = await modal.open<boolean>("confirm", (resolve) => (
       <ConfirmModal
         key="confirm-modal"
         onConfirm={() => resolve(true)}
@@ -63,39 +63,17 @@ function App() {
       />
     ));
 
-    console.log("Result:", result);
+    setConfirmed(result);
   };
 
-  const [count, setCount] = useState(0);
-  const { render } = useModalHost();
   return (
     <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => {
-          setCount((count) => count + 1);
-          onClick();
-        }}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-      <AnimatePresence>
-        {render()}
-      </AnimatePresence>
+      <p>Confirmed: {confirmed ? "Yes" : "No"}</p>
+      <button onClick={() => {
+        onClick();
+      }}>
+        Open Confirm Modal
+      </button>
     </>
   )
 }

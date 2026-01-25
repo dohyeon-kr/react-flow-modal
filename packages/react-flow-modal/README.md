@@ -22,7 +22,9 @@ yarn add react-flow-modal
 ## Basic Usage
 
 ```tsx
-import { ModalProvider, useModal, renderModals } from "react-flow-modal";
+import { StrictMode } from 'react';
+import { createRoot } from 'react-dom/client';
+import { ModalProvider, useModal, ModalHost } from "react-flow-modal";
 
 function ConfirmModal({
   onConfirm,
@@ -66,6 +68,7 @@ function App() {
   const modal = useModal();
 
   const onClick = async () => {
+    // render modal and await resolve
     const result = await modal.open("confirm", (resolve) => (
       <ConfirmModal
         onConfirm={() => resolve(true)}
@@ -73,24 +76,22 @@ function App() {
       />
     ));
 
+    // flow resumed
     console.log("Result:", result);
   };
 
   return <button onClick={onClick}>Open Confirm Modal</button>;
 }
 
-function ModalRenderer() {
-  return renderModals();
-}
-
-export default function Root() {
-  return (
+createRoot(document.getElementById('root')!).render(
+  <StrictMode>
     <ModalProvider>
       <App />
-      <ModalRenderer />
+      <ModalHost />
     </ModalProvider>
-  );
-}
+  </StrictMode>,
+)
+
 ```
 
 ---
@@ -101,8 +102,10 @@ To support exit animations, modals must be rendered inside the same
 React tree as `AnimatePresence`.
 
 ```tsx
-import { ModalProvider, useModal, renderModals } from "react-flow-modal";
-import { motion, AnimatePresence } from "motion/react";
+import { StrictMode } from 'react';
+import { createRoot } from 'react-dom/client';
+import { ModalHost, ModalProvider } from 'react-flow-modal';
+import { AnimatePresence, motion } from 'motion/react';
 
 function ConfirmModal({
   onConfirm,
@@ -113,7 +116,7 @@ function ConfirmModal({
 }) {
   return (
     <motion.div
-      key="modal"
+      key="confirm-modal-container"
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
@@ -127,7 +130,6 @@ function ConfirmModal({
       }}
     >
       <motion.div
-        key="modal-content"
         initial={{ scale: 0.9, opacity: 0 }}
         animate={{ scale: 1, opacity: 1 }}
         exit={{ scale: 0.95, opacity: 0 }}
@@ -137,6 +139,7 @@ function ConfirmModal({
           padding: 24,
           borderRadius: 8,
           minWidth: 300,
+          color: "black",
         }}
       >
         <h3>Are you sure?</h3>
@@ -151,39 +154,24 @@ function ConfirmModal({
   );
 }
 
-function App() {
-  const modal = useModal();
+...
 
-  const onClick = async () => {
-    const result = await modal.open("confirm", (resolve) => (
-      <ConfirmModal
-        onConfirm={() => resolve(true)}
-        onCancel={() => resolve(false)}
-      />
-    ));
-
-    console.log("Result:", result);
-  };
-
-  return <button onClick={onClick}>Open Confirm Modal</button>;
-}
-
-function ModalRenderer() {
-  return (
-    <AnimatePresence>
-      {renderModals()}
-    </AnimatePresence>
-  );
-}
-
-export default function Root() {
-  return (
+createRoot(document.getElementById('root')!).render(
+  <StrictMode>
     <ModalProvider>
       <App />
-      <ModalRenderer />
+      <ModalHost>
+        {(modals) => (
+          <AnimatePresence>
+            {modals}
+          </AnimatePresence>
+        )}
+      </ModalHost>
     </ModalProvider>
-  );
-}
+  </StrictMode>,
+)
+
+
 ```
 
 ---
@@ -210,11 +198,13 @@ Returns an object that controls the modal flow.
 }
 ```
 
-### renderModals
+### ModalHost
 ```ts
-renderModals(): React.ReactNode
+const ModalHost: FC<{
+    children?: (modals: ReactElement[]) => React.ReactNode;
+}>;
 ```
-Renders the entire modal stack. This function should be rendered **once** in your React tree.
+Renders the entire modal stack. This component should be rendered **once** in your React tree.
 
 ---
 
@@ -222,9 +212,6 @@ Renders the entire modal stack. This function should be rendered **once** in you
 
 > ⚠️ Always resolve or reject the promise.
 > Leaving it pending will block the async flow.
-
-> ⚠️ `renderModals()` should be rendered once.
-> Rendering it multiple times may result in duplicated modals.
 
 ---
 

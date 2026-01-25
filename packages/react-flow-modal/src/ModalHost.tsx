@@ -1,13 +1,9 @@
-import { FC, Fragment } from 'react';
-import { useModalHost } from './useModalContext';
+import { FC, isValidElement, ReactElement } from 'react';
+import { useModalContext } from './useModalContext';
 
-/** @deprecated use renderModals instead */
-export const ModalHost: FC = () => {
-    const { render } = useModalHost();
+export const ModalHost: FC<{ children?: (modals: ReactElement[]) => React.ReactNode }> = ({ children }) => {
+    const { stack } = useModalContext();
 
-    return (
-        <Fragment>
-            {render()}
-        </Fragment>
-    );
+    if (!children) return stack.filter(isValidElement);
+    return children(stack.filter(isValidElement));
 };

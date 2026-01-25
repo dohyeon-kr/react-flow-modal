@@ -10,11 +10,3 @@ export const useModalContext = () => {
 
     return context;
 };
-
-export const useModalHost = () => {
-    const { stack } = useModalContext();
-
-    return {
-        render: () => stack.map((item) => (item)),
-    };
-};
