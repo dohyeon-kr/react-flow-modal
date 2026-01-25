@@ -10,3 +10,9 @@ export const useModalContext = () => {
 
     return context;
 };
+
+export const renderModals = () => {
+    const { stack } = useModalContext();
+
+    return stack.map((item) => (item));
+};

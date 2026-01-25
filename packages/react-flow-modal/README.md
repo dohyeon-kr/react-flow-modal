@@ -17,83 +17,244 @@ npm install react-flow-modal
 yarn add react-flow-modal
 ```
 
+---
+
 ## Basic Usage
 
-```JSX
-import { ModalProvider, ModalHost, useModal } from "react-flow-modal";
+```tsx
+import { ModalProvider, useModal, renderModals } from "react-flow-modal";
+
+function ConfirmModal({
+  onConfirm,
+  onCancel,
+}: {
+  onConfirm: () => void;
+  onCancel: () => void;
+}) {
+  return (
+    <div
+      style={{
+        position: "fixed",
+        inset: 0,
+        background: "rgba(0,0,0,0.5)",
+        display: "grid",
+        placeItems: "center",
+        zIndex: 1000,
+      }}
+    >
+      <div
+        style={{
+          background: "white",
+          padding: 24,
+          borderRadius: 8,
+          minWidth: 300,
+        }}
+      >
+        <h3>Are you sure?</h3>
+        <p>This action cannot be undone.</p>
+
+        <div style={{ display: "flex", gap: 8, marginTop: 16 }}>
+          <button onClick={onCancel}>Cancel</button>
+          <button onClick={onConfirm}>Confirm</button>
+        </div>
+      </div>
+    </div>
+  );
+}
 
 function App() {
-    const modal = useModal();
+  const modal = useModal();
 
-    const onClick = async () => {
-        const result = await modal.open("confirm", 
-        (resolve, reject) => (
-            <ConfirmModal
-                onConfirm={() => resolve(true)}
-                onCancel={() => resolve(false)}
-            />
-        ));
+  const onClick = async () => {
+    const result = await modal.open("confirm", (resolve) => (
+      <ConfirmModal
+        onConfirm={() => resolve(true)}
+        onCancel={() => resolve(false)}
+      />
+    ));
 
-        // Resolving or rejecting the promise will also remove the modal from the stack
+    console.log("Result:", result);
+  };
 
-        console.log(result);
-    };
+  return <button onClick={onClick}>Open Confirm Modal</button>;
+}
 
-    return <button onClick={onClick}>Open modal</button>;
+function ModalRenderer() {
+  return renderModals();
 }
 
 export default function Root() {
   return (
     <ModalProvider>
       <App />
-      <ModalHost />
+      <ModalRenderer />
     </ModalProvider>
   );
 }
 ```
 
+---
+
+## With AnimatePresence (Framer Motion)
+
+To support exit animations, modals must be rendered inside the same
+React tree as `AnimatePresence`.
+
+```tsx
+import { ModalProvider, useModal, renderModals } from "react-flow-modal";
+import { motion, AnimatePresence } from "motion/react";
+
+function ConfirmModal({
+  onConfirm,
+  onCancel,
+}: {
+  onConfirm: () => void;
+  onCancel: () => void;
+}) {
+  return (
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      style={{
+        position: "fixed",
+        inset: 0,
+        background: "rgba(0,0,0,0.5)",
+        display: "grid",
+        placeItems: "center",
+        zIndex: 1000,
+      }}
+    >
+      <motion.div
+        initial={{ scale: 0.9, opacity: 0 }}
+        animate={{ scale: 1, opacity: 1 }}
+        exit={{ scale: 0.95, opacity: 0 }}
+        transition={{ duration: 0.2 }}
+        style={{
+          background: "white",
+          padding: 24,
+          borderRadius: 8,
+          minWidth: 300,
+        }}
+      >
+        <h3>Are you sure?</h3>
+        <p>This action cannot be undone.</p>
+
+        <div style={{ display: "flex", gap: 8, marginTop: 16 }}>
+          <button onClick={onCancel}>Cancel</button>
+          <button onClick={onConfirm}>Confirm</button>
+        </div>
+      </motion.div>
+    </motion.div>
+  );
+}
+
+function App() {
+  const modal = useModal();
+
+  const onClick = async () => {
+    const result = await modal.open("confirm", (resolve) => (
+      <ConfirmModal
+        onConfirm={() => resolve(true)}
+        onCancel={() => resolve(false)}
+      />
+    ));
+
+    console.log("Result:", result);
+  };
+
+  return <button onClick={onClick}>Open Confirm Modal</button>;
+}
+
+function ModalRenderer() {
+  return (
+    <AnimatePresence>
+      {renderModals()}
+    </AnimatePresence>
+  );
+}
+
+export default function Root() {
+  return (
+    <ModalProvider>
+      <App />
+      <ModalRenderer />
+    </ModalProvider>
+  );
+}
+```
+
+---
+
 ## API
 
-### open
-```TS
-open<T>(
-  key: string,
-  render: (
-    resolve: (value: T) => void,
-    reject: (reason?: unknown) => void
-  ) => React.ReactNode
-): Promise<T>
+### useModal
+
+```ts
+const modal = useModal();
 ```
+
+Returns an object that controls the modal flow.
+
+```ts
+{
+  open<T>(
+    key: string,
+    render: (
+      resolve: (value: T) => void,
+      reject: (reason?: unknown) => void
+    ) => React.ReactNode
+  ): Promise<T>;
+}
+```
+
+### renderModals
+```ts
+renderModals(): React.ReactNode
+```
+Renders the entire modal stack. This function should be rendered **once** in your React tree.
+
+---
 
 ## Important
 
-> ⚠️ Make sure to always resolve or reject the promise.
+> ⚠️ Always resolve or reject the promise.
 > Leaving it pending will block the async flow.
+
+> ⚠️ `renderModals()` should be rendered once.
+> Rendering it multiple times may result in duplicated modals.
+
+---
 
 ## Why react-flow-modal?
 
 Most modal libraries are state-driven:
-```JSX
+
+```tsx
 setOpen(true);
 ```
 
 This makes modal control implicit and tightly coupled to rendering.
 
-react-flow-modal treats modals as explicit async control points:
+`react-flow-modal` treats modals as explicit async control points:
 
-```JSX
+```tsx
 const result = await open(...);
 ```
 
 This keeps control flow readable, composable, and testable.
 
+---
+
 ## Features
 
-- Headless API (no styles, no UI constraints)
-- Promise-based modal control
-- Stack-based modal rendering
-- Fully controlled by user events
-- Works naturally with async / await
+* Headless API (no styles, no UI constraints)
+* Promise-based modal control
+* Internal stack management
+* Render location fully controlled by the user
+* Works naturally with async / await
+
+---
 
 ## License
 

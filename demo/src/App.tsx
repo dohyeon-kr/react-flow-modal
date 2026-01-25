@@ -1,13 +1,72 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import { useModal } from 'react-flow-modal';
-import './App.css'
+import { AnimatePresence, motion } from "motion/react";
+import { useState } from 'react';
+import { renderModal, useModal } from "react-flow-modal";
+import './App.css';
+import reactLogo from './assets/react.svg';
+import viteLogo from '/vite.svg';
+
+function ConfirmModal({
+  onConfirm,
+  onCancel,
+}: {
+  onConfirm: () => void;
+  onCancel: () => void;
+}) {
+  return (
+    <motion.div
+      key="confirm-modal-container"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      style={{
+        position: "fixed",
+        inset: 0,
+        background: "rgba(0,0,0,0.5)",
+        display: "grid",
+        placeItems: "center",
+        zIndex: 1000,
+      }}
+    >
+      <motion.div
+        initial={{ scale: 0.9, opacity: 0 }}
+        animate={{ scale: 1, opacity: 1 }}
+        exit={{ scale: 0.95, opacity: 0 }}
+        transition={{ duration: 0.2 }}
+        style={{
+          background: "white",
+          padding: 24,
+          borderRadius: 8,
+          minWidth: 300,
+        }}
+      >
+        <h3>Are you sure?</h3>
+        <p>This action cannot be undone.</p>
+
+        <div style={{ display: "flex", gap: 8, marginTop: 16 }}>
+          <button onClick={onCancel}>Cancel</button>
+          <button onClick={onConfirm}>Confirm</button>
+        </div>
+      </motion.div>
+    </motion.div>
+  );
+}
 
 function App() {
-  const [count, setCount] = useState(0);
+  const modal = useModal();
 
-  const { open } = useModal();
+  const onClick = async () => {
+    const result = await modal.open("confirm", (resolve) => (
+      <ConfirmModal
+        key="confirm-modal"
+        onConfirm={() => resolve(true)}
+        onCancel={() => resolve(false)}
+      />
+    ));
+
+    console.log("Result:", result);
+  };
+
+  const [count, setCount] = useState(0);
 
   return (
     <>
@@ -23,15 +82,7 @@ function App() {
       <div className="card">
         <button onClick={() => {
           setCount((count) => count + 1);
-          open('modal', (resolve, reject) => {
-            return <div style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', backgroundColor: 'rgba(0, 0, 0, 0.5)' }}>
-              <div style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', backgroundColor: 'white', padding: '20px' }}>
-                <h1>Modal</h1>
-                <button onClick={() => resolve('success')}>Resolve</button>
-                <button onClick={() => reject('error')}>Reject</button>
-              </div>
-            </div>
-          });
+          onClick();
         }}>
           count is {count}
         </button>
@@ -42,8 +93,11 @@ function App() {
       <p className="read-the-docs">
         Click on the Vite and React logos to learn more
       </p>
+      <AnimatePresence>
+        {renderModal()}
+      </AnimatePresence>
     </>
   )
 }
 
-export default App
+export default App;

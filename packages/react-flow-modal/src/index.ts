@@ -1,3 +1,4 @@
 export { ModalProvider } from './ModalProvider';
-export { ModalHost } from './ModalHost';
 export { useModal } from './useModal';
+export { ModalHost } from './ModalHost';
+export { renderModals } from './useModalContext';

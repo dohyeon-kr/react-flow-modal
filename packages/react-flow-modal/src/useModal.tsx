@@ -29,7 +29,7 @@ export const useModal = () => {
                 reject(reason);
                 pop();
             });
-            push(<Fragment key={key}>{element}</Fragment>);
+            push(element);
         });
     };
 
