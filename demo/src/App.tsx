@@ -1,6 +1,6 @@
 import { AnimatePresence, motion } from "motion/react";
 import { useState } from 'react';
-import { renderModal, useModal } from "react-flow-modal";
+import { useModal, useModalHost } from "react-flow-modal";
 import './App.css';
 import reactLogo from './assets/react.svg';
 import viteLogo from '/vite.svg';
@@ -67,7 +67,7 @@ function App() {
   };
 
   const [count, setCount] = useState(0);
-
+  const { render } = useModalHost();
   return (
     <>
       <div>
@@ -94,7 +94,7 @@ function App() {
         Click on the Vite and React logos to learn more
       </p>
       <AnimatePresence>
-        {renderModal()}
+        {render()}
       </AnimatePresence>
     </>
   )
