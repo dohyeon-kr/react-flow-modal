@@ -113,6 +113,7 @@ function ConfirmModal({
 }) {
   return (
     <motion.div
+      key="modal"
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
@@ -126,6 +127,7 @@ function ConfirmModal({
       }}
     >
       <motion.div
+        key="modal-content"
         initial={{ scale: 0.9, opacity: 0 }}
         animate={{ scale: 1, opacity: 1 }}
         exit={{ scale: 0.95, opacity: 0 }}
