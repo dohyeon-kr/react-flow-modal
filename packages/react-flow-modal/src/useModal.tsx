@@ -1,16 +1,15 @@
 import React, { Fragment } from "react";
-import { useModalContext } from "./useModalContext";
+import { useModalStore } from "./ModalProvider";
 
 export const useModal = () => {
-    const { setStack } = useModalContext();
+    const appendStack = useModalStore(
+        (state) => state.appendStack
+    );
 
-    const pop = () => {
-        setStack((prev) => prev.slice(0, -1));
-    };
+    const removeStack = useModalStore(
+        (state) => state.removeStack
+    );
 
-    const push = (element: React.ReactNode) => {
-        setStack((prev) => [...prev, element]);
-    };
 
     /**
      * 모달을 열고 닫는 함수
@@ -24,12 +23,12 @@ export const useModal = () => {
         return new Promise<T>((resolve, reject) => {
             const element = render((value) => {
                 resolve(value);
-                pop();
+                removeStack(key);
             }, (reason) => {
                 reject(reason);
-                pop();
+                removeStack(key);
             });
-            push(<Fragment key={`modal-${key}`}>{element}</Fragment>);
+            appendStack(key, <Fragment key={`modal-${key}`}>{element}</Fragment>);
         });
     };
 

@@ -1,9 +1,13 @@
 import { FC, isValidElement, ReactElement } from 'react';
-import { useModalContext } from './useModalContext';
+import { useModalStore } from './ModalProvider';
+
 
 export const ModalHost: FC<{ children?: (modals: ReactElement[]) => React.ReactNode }> = ({ children }) => {
-    const { stack } = useModalContext();
+    const stack = useModalStore(
+        (state) => state.stack
+    );
 
-    if (!children) return stack.filter(isValidElement);
-    return children(stack.filter(isValidElement));
+
+    if (!children) return Array.from(stack.values());
+    return children(Array.from(stack.values()));
 };
