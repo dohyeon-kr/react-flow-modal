@@ -25,6 +25,7 @@
   },
   "scripts": {
     "build": "tsup",
+    "test": "node --experimental-strip-types src/openModalFlow.test.mjs",
     "prepublishOnly": "pnpm build"
   },
   "peerDependencies": {

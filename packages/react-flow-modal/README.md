@@ -213,6 +213,9 @@ Renders the entire modal stack. This component should be rendered **once** in yo
 > ⚠️ Always resolve or reject the promise.
 > Leaving it pending will block the async flow.
 
+Modal keys identify active flows. Calling `open` with a key that is already active
+returns a rejected promise and leaves the existing modal untouched.
+
 ---
 
 ## Why react-flow-modal?
